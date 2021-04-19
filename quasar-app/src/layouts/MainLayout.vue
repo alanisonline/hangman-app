@@ -12,10 +12,10 @@
         />
 
         <q-toolbar-title>
-          Quasar App
+          Hangman App
         </q-toolbar-title>
 
-        <div>Quasar v{{ $q.version }}</div>
+        <div>{{ this.username }}</div>
       </q-toolbar>
     </q-header>
 
@@ -41,7 +41,7 @@
     </q-drawer>
 
     <q-page-container>
-      <router-view />
+      <router-view v-bind:userloggedin="this.username = userloggedin"/>
     </q-page-container>
   </q-layout>
 </template>
@@ -102,7 +102,8 @@ export default Vue.extend({
   data() {
     return {
       leftDrawerOpen: false,
-      essentialLinks: linksData
+      essentialLinks: linksData,
+      username: 'Guest', 
     }
   }
 });
