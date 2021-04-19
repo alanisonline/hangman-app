@@ -1,6 +1,6 @@
 <template>
   <q-page class="row items-center justify-evenly">
-    <div v-if="user">
+    <div v-if="user" full-width>
       <p>{{ this.user.hasOwnProperty('name') ? this.user.name : '' }}</p>
       <GameComponent />
     </div>
