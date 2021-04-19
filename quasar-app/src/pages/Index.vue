@@ -6,33 +6,44 @@
     ></example-component> -->
     <div v-if="user">
       <p>{{ this.user.hasOwnProperty('name') ? this.user.name : '' }}</p>
-      <GameComponent/>
+      <GameComponent />
     </div>
     <div v-else>
       <q-card square bordered class="q-pa-lg shadow-1">
         <q-card-section>
-          <q-form class="q-gutter-md" method="POST" @submit="handleLogin" action="/login">
-            <q-input square v-model="login.email" type="email" label="email" />
+          <q-form
+            class="q-gutter-md"
+            method="POST"
+            @submit="handleLogin"
+            action="/login"
+          >
+            <q-input
+              square
+              class="full-width"
+              v-model="login.email"
+              type="email"
+              label="email"
+            />
             <q-input
               square
               filled
               clearable
+              class="full-width"
               v-model="login.password"
               type="password"
               label="password"
             />
-          <q-btn
-            unelevated
-            color="light-green-7"
-            size="lg"
-            class="full-width"
-            label="Login"
-            type="submit"
-          />
+            <q-btn
+              unelevated
+              color="light-green-7"
+              size="lg"
+              class="full-width"
+              label="Login"
+              type="submit"
+            />
           </q-form>
         </q-card-section>
-        <q-card-actions class="q-px-md">
-        </q-card-actions>
+        <q-card-actions class="q-px-md"> </q-card-actions>
         <q-card-section class="text-center q-pa-none">
           <p class="text-grey-6">
             Not registered?
@@ -80,7 +91,9 @@ export default Vue.extend({
           this.user = <unknown | null>response.data;
           console.log(this.user);
         })
-        .catch((err) => console.log('There has been an error with getting User', err));
+        .catch((err) =>
+          console.log('There has been an error with getting User', err)
+        );
     },
     handleLogin() {
       void axios
