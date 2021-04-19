@@ -26,6 +26,7 @@ class LoginController extends Controller
         return [
             'errors' => [
                 'email' => 'The provided credentials do not match our records.',
+                'password' => 'The provided credentials do not match our records.',
             ],
         ];
     }

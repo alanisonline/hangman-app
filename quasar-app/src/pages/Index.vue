@@ -5,8 +5,8 @@
       active
     ></example-component> -->
     <div v-if="user">
-      <p>User exists</p>
-      <p>{{ this.user }}</p>
+      <p>{{ this.user.hasOwnProperty('name') ? this.user.name : '' }}</p>
+      <GameComponent/>
     </div>
     <div v-else>
       <q-card square bordered class="q-pa-lg shadow-1">
@@ -47,18 +47,17 @@
 </template>
 
 <script lang="ts">
-// import ExampleComponent from 'components/OptionsComponent.vue';
 import Vue from 'vue';
 import axios from 'axios';
+import GameComponent from '../components/GameComponent.vue';
 
 export default Vue.extend({
   name: 'PageIndex',
-  // components: { ExampleComponent },
+  components: { GameComponent },
   data() {
     return {
       user: <unknown | null>null,
-      // login: { email: 'testing@testing.com', password: 'testing' },
-      login: { email: 'testing@testing.com', password: 'testing' },
+      login: { email: '', password: '' },
     };
   },
   mounted() {
@@ -67,10 +66,9 @@ export default Vue.extend({
       .catch((err) =>
         console.log('There has been an error obtaining a cookie', err)
       )
-      .then((response) => {
+      .then(() => {
         // Login...
         this.getUser();
-        console.log(response);
       });
   },
   methods: {
@@ -88,8 +86,7 @@ export default Vue.extend({
       void axios
         .post('/login', this.login)
         .catch((err) => console.log('There has been an error with Login', err))
-        .then((response) => {
-          console.log(response);
+        .then(() => {
           this.getUser();
         });
     },
