@@ -133,6 +133,37 @@ export default Vue.extend({
     };
   },
   methods: {
+    render(): void {
+      let cvs = <HTMLCanvasElement>document.getElementById('gameCanvas');
+      let ctx = <CanvasRenderingContext2D>cvs.getContext('2d');
+      ctx.clearRect(0, 0, cvs.width, cvs.height);
+      let gridSize = { w: cvs.width / 32, h: cvs.height / 24 };
+
+      switch (this.lives) {
+        case 1:
+          case 2:
+            case 3:
+              case 4:
+                ctx.fillRect(gridSize.w*22, gridSize.h*8, gridSize.w, gridSize.h*4);
+                case 5:
+          ctx.beginPath();
+          ctx.arc((gridSize.w*22) + (gridSize.w/2),gridSize.h*6,gridSize.h*2,0,  2 * Math.PI);
+          ctx.stroke();
+        case 6:
+          this.drawGallow(ctx, gridSize);
+          break;
+        case 0:
+        default:
+          ctx.font = '160px Monospace';
+          ctx.fillText('HANGMAN', 0, cvs.height - 40, cvs.width);
+          break;
+      }
+    },
+    drawGallow(ctx: CanvasRenderingContext2D, gridSize = {w: 32, h: 24}) {
+      ctx.fillRect(gridSize.w * 30, 0, gridSize.w, gridSize.h * 24);
+      ctx.fillRect(gridSize.w * 22, 0, gridSize.w * 8, gridSize.h);
+      ctx.fillRect(gridSize.w * 22, 0, gridSize.w, gridSize.h * 4);
+    },
     startGame() {
       this.resetGame();
       this.startTimer();
@@ -173,6 +204,7 @@ export default Vue.extend({
       });
       if (loseLife && this.lives > 0) this.lives--;
       if (isWordComplete) this.wordComplete();
+      this.render();
     },
     wordComplete(): void {
       this.stopTimer();
@@ -203,6 +235,9 @@ export default Vue.extend({
       }
       return this.difficultyLevel;
     },
+  },
+  mounted() {
+    this.render();
   },
 });
 </script>
