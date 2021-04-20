@@ -3,15 +3,24 @@
     <div class="output">
       <canvas id="gameCanvas"></canvas>
     </div>
+    <div class="word row justify-evenly full-width">
+      <div
+        class="letter-box"
+        v-for="letter in targetWord.letters"
+        :key="letter.character.id"
+      >
+        <span v-show="letter.active == 1">{{ letter.character }}</span>
+      </div>
+    </div>
     <div class="input">
       <q-btn
         round
-        v-for="letter in alphabet"
-        v-show="letter.enabled == 1"
-        :key="letter.id"
-        v-on:click="toggle(letter)"
+        v-for="letter in alphabet.letters"
+        v-show="letter.active == 1"
+        v-on:click="select(letter)"
+        :key="letter.character.id"
       >
-        {{ letter.value }}
+        {{ letter.character }}
       </q-btn>
     </div>
   </div>
@@ -19,77 +28,92 @@
 
 <script lang="ts">
 import Vue from 'vue';
+
+class Word {
+  word: string;
+  letters: Array<Letter>;
+
+  constructor(word = <string>'hangman', deactivate = false) {
+    this.word = word.toUpperCase();
+    this.letters = this.lettersFromWord(deactivate);
+  }
+  lettersFromWord(deactivate = false): Letter[] {
+    let letters: Letter[] = [];
+    this.word.split('').forEach(function (character) {
+      let letter = new Letter(character);
+      if (deactivate) {
+        letter.active = 0;
+      }
+      letters.push(letter);
+    });
+    return letters;
+  }
+}
+
+class Letter {
+  public character: string;
+  public active: number;
+  constructor(character = 'h', active = 1) {
+    this.character = character.toUpperCase();
+    this.active = active;
+  }
+}
+
 export default Vue.extend({
   name: 'Game',
   props: {
     msg: String,
   },
   data() {
-    const alphabet = [
-      { value: 'A', enabled: 1 },
-      { value: 'B', enabled: 1 },
-      { value: 'C', enabled: 1 },
-      { value: 'D', enabled: 1 },
-      { value: 'B', enabled: 1 },
-      { value: 'C', enabled: 1 },
-      { value: 'D', enabled: 1 },
-      { value: 'E', enabled: 1 },
-      { value: 'F', enabled: 1 },
-      { value: 'G', enabled: 1 },
-      { value: 'H', enabled: 1 },
-      { value: 'I', enabled: 1 },
-      { value: 'J', enabled: 1 },
-      { value: 'K', enabled: 1 },
-      { value: 'L', enabled: 1 },
-      { value: 'M', enabled: 1 },
-      { value: 'N', enabled: 1 },
-      { value: 'O', enabled: 1 },
-      { value: 'P', enabled: 1 },
-      { value: 'Q', enabled: 1 },
-      { value: 'R', enabled: 1 },
-      { value: 'S', enabled: 1 },
-      { value: 'T', enabled: 1 },
-      { value: 'U', enabled: 1 },
-      { value: 'V', enabled: 1 },
-      { value: 'W', enabled: 1 },
-      { value: 'X', enabled: 1 },
-      { value: 'Y', enabled: 1 },
-      { value: 'Z', enabled: 1 },
-    ];
-
-    const difficultyLevel = 1;
-    return { alphabet, difficultyLevel };
+    const alphabet = new Word('ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+    const difficultyLevel = 3;
+    let targetWord: Word = new Word(undefined, true);
+    return { alphabet, difficultyLevel, targetWord };
   },
   methods: {
-    toggle(button = {value: '', enabled: 0}): void {
-      button.enabled = button.enabled == 1 ? 0 : 1;
+    select(button: Letter): void {
+      button.active = button.active == 1 ? 0 : 1;
+      let isWordComplete = true;
+      this.targetWord.letters.forEach((letter: Letter) => {
+        if (letter.character == button.character) {
+          letter.active = 1;
+          console.log(letter.character + ' == ' + button.character);
+        }
+        if (letter.active == 0) isWordComplete = false;
+      });
+      if (isWordComplete) this.wordComplete();
     },
-    word() {
-      let word = 'hangman';
+    wordComplete() {
+      alert('success');
+    },
+    setTargetWord(): void {
+      let word: Word;
       switch (this.difficultyLevel) {
         case 1:
-          word = 'dog';
+          word = new Word('dog', true);
           break;
         case 2:
-          word = 'garden';
+          word = new Word('garden', true);
           break;
         case 3:
-          word = 'intrinsic';
+          word = new Word('intrinsic', true);
           break;
         default:
-          word = 'hangman';
+          word = new Word('hangman', true);
           break;
       }
-      return word;
+
+      this.targetWord = word;
     },
-    test(letter: JSON) {
-      console.log(letter);
-    },
+
     difficulty(setting: number) {
       if (setting >= 1 && setting <= 3) {
         this.difficultyLevel = setting;
       }
       return this.difficultyLevel;
+    },
+    mounted(): void {
+      console.log(this.alphabet);
     },
   },
 });
@@ -118,5 +142,15 @@ a {
 .input button {
   margin: 4px;
   padding: 8px 0px;
+}
+.game {
+  min-width: 320px;
+  max-width: 100vw;
+}
+.letter-box {
+  border-bottom: 2px solid black;
+  min-width: 20px;
+  max-width: 50px;
+  height: 50px;
 }
 </style>
