@@ -97,7 +97,7 @@ export default Vue.extend({
   } {
     const state = 0;
     const alphabet = new Word('ABCDEFGHIJKLMNOPQRSTUVWXYZ');
-    const difficultyLevel = 3;
+    const difficultyLevel = 2;
     const difficultyLevels = [
       {
         label: 'Easy',

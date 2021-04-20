@@ -7,7 +7,7 @@
     <div v-else>
       <div class="column">
         <div class="row">
-          <h5 class="text-h5 text-grey-8 q-my-md">Login</h5>
+          <h5 class="text-h5 text-grey-8 q-ma-md">Login</h5>
         </div>
         <q-card square bordered class="q-pa-lg shadow-1">
           <q-card-section class="form-card-section">
