@@ -1,16 +1,24 @@
 <template>
   <div class="game full-width">
     <div class="output">
-      <div class="row full-width">
+      <div class="row justify-evenly full-width">
         <p>LIVES: {{ this.lives }}</p>
+        <p>TIME: {{ this.time }}</p>
       </div>
       <canvas id="gameCanvas"></canvas>
     </div>
     <div v-show="this.state == 0" class="game-menu">
-      <q-btn id="start" v-on:click="startGame"> Start </q-btn>
       <div class="q-pa-lg">
-        <q-option-group v-model="group" :options="options" color="primary" />
+        <q-option-group v-model="difficultyLevel" :options="difficultyLevels" />
       </div>
+      <q-btn
+        id="start"
+        class="full-width"
+        color="light-green-7"
+        v-on:click="startGame"
+      >
+        Start
+      </q-btn>
     </div>
     <div
       v-show="this.state == 1 || this.state == 2"
@@ -76,38 +84,81 @@ export default Vue.extend({
   props: {
     msg: String,
   },
-  data() {
+  data(): {
+    state: number;
+    alphabet: Word;
+    difficultyLevel: number;
+    difficultyLevels: { label: string; value: number; color: string }[];
+    lives: number;
+    targetWord: Word;
+    time: number;
+    timer: number;
+    completionTime: number;
+  } {
     const state = 0;
     const alphabet = new Word('ABCDEFGHIJKLMNOPQRSTUVWXYZ');
     const difficultyLevel = 3;
+    const difficultyLevels = [
+      {
+        label: 'Easy',
+        value: 1,
+        color: 'green',
+      },
+      {
+        label: 'Medium',
+        value: 2,
+        color: 'orange',
+      },
+      {
+        label: 'Hard',
+        value: 3,
+        color: 'red',
+      },
+    ];
     const lives = 6;
     const targetWord: Word = new Word(undefined, true);
+    const time = 0;
+    const timer = 0;
+    const completionTime = 0;
     return {
       state,
       alphabet,
       difficultyLevel,
+      difficultyLevels,
       lives,
       targetWord,
-      group: 'op1',
-      options: [
-        {
-          label: 'Option 1',
-          value: 'op1',
-        },
-        {
-          label: 'Option 2',
-          value: 'op2',
-        },
-        {
-          label: 'Option 3',
-          value: 'op3',
-        },
-      ],
+      time,
+      timer,
+      completionTime,
     };
   },
   methods: {
     startGame() {
+      this.resetGame();
+      this.startTimer();
+    },
+    resetGame() {
+      this.setTargetWord();
+      this.resetAlphabet();
+      this.lives = 6;
       this.state = 1;
+    },
+    resetAlphabet() {
+      this.alphabet.letters.forEach((letter) => {
+        letter.active = 1;
+      });
+    },
+    startTimer() {
+      this.timer = window.setInterval(() => {
+        this.updateTimer();
+      }, 1000);
+    },
+    updateTimer() {
+      this.time++;
+    },
+    stopTimer() {
+      this.completionTime = this.time;
+      window.clearInterval(this.timer);
     },
     select(button: Letter): void {
       button.active = button.active == 1 ? 0 : 1;
@@ -116,7 +167,6 @@ export default Vue.extend({
       this.targetWord.letters.forEach((letter: Letter) => {
         if (letter.character == button.character) {
           letter.active = 1;
-          console.log(letter.character + ' == ' + button.character);
           loseLife = false;
         }
         if (letter.active == 0) isWordComplete = false;
@@ -125,10 +175,10 @@ export default Vue.extend({
       if (isWordComplete) this.wordComplete();
     },
     wordComplete(): void {
+      this.stopTimer();
       this.state = 0;
-      alert('success');
     },
-    setTargetWord(): void {
+    setTargetWord(): Word {
       let word: Word;
       switch (this.difficultyLevel) {
         case 1:
@@ -144,19 +194,15 @@ export default Vue.extend({
           word = new Word('hangman', true);
           break;
       }
-
       this.targetWord = word;
+      return this.targetWord;
     },
-
     difficulty(setting: number) {
       if (setting >= 1 && setting <= 3) {
         this.difficultyLevel = setting;
       }
       return this.difficultyLevel;
     },
-  },
-  mounted(): void {
-    this.setTargetWord();
   },
 });
 </script>
@@ -183,7 +229,6 @@ a {
 }
 .input button {
   margin: 4px;
-  padding: 8px 0px;
 }
 .game {
   min-width: 320px;
