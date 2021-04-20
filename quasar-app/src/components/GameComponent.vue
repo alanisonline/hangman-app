@@ -22,7 +22,7 @@
     </div>
     <div
       v-show="this.state == 1 || this.state == 2"
-      class="word row justify-evenly full-width"
+      class="target-word row justify-evenly full-width"
     >
       <div
         class="letter-box"
@@ -133,33 +133,77 @@ export default Vue.extend({
     };
   },
   methods: {
-    render(): void {
+    render(success = false): void {
       let cvs = <HTMLCanvasElement>document.getElementById('gameCanvas');
       let ctx = <CanvasRenderingContext2D>cvs.getContext('2d');
       ctx.clearRect(0, 0, cvs.width, cvs.height);
       let gridSize = { w: cvs.width / 32, h: cvs.height / 24 };
 
+      if (success == true) {
+        ctx.font = '160px Monospace';
+        ctx.fillText('SUCCESS', 0, cvs.height - 40, cvs.width);
+        return;
+      }
+
       switch (this.lives) {
+        case 0:
+          ctx.font = '60px Monospace';
+          ctx.fillText('GAME', 0, cvs.height / 2 - gridSize.h * 2, cvs.width);
+          ctx.fillText('OVER', 0, cvs.height - gridSize.h * 2, cvs.width);
+          ctx.fillRect(
+            gridSize.w * 21,
+            gridSize.h * 12,
+            gridSize.w,
+            gridSize.h * 4
+          );
         case 1:
-          case 2:
-            case 3:
-              case 4:
-                ctx.fillRect(gridSize.w*22, gridSize.h*8, gridSize.w, gridSize.h*4);
-                case 5:
+          ctx.fillRect(
+            gridSize.w * 23,
+            gridSize.h * 12,
+            gridSize.w,
+            gridSize.h * 4
+          );
+        case 2:
+          ctx.fillRect(
+            gridSize.w * 23,
+            gridSize.h * 8,
+            gridSize.w * 3,
+            gridSize.h
+          );
+        case 3:
+          ctx.fillRect(
+            gridSize.w * 19,
+            gridSize.h * 8,
+            gridSize.w * 4,
+            gridSize.h
+          );
+        case 4:
+          ctx.fillRect(
+            gridSize.w * 22,
+            gridSize.h * 8,
+            gridSize.w,
+            gridSize.h * 4
+          );
+        case 5:
           ctx.beginPath();
-          ctx.arc((gridSize.w*22) + (gridSize.w/2),gridSize.h*6,gridSize.h*2,0,  2 * Math.PI);
+          ctx.arc(
+            gridSize.w * 22 + gridSize.w / 2,
+            gridSize.h * 6,
+            gridSize.h * 2,
+            0,
+            2 * Math.PI
+          );
           ctx.stroke();
         case 6:
           this.drawGallow(ctx, gridSize);
           break;
-        case 0:
         default:
           ctx.font = '160px Monospace';
           ctx.fillText('HANGMAN', 0, cvs.height - 40, cvs.width);
           break;
       }
     },
-    drawGallow(ctx: CanvasRenderingContext2D, gridSize = {w: 32, h: 24}) {
+    drawGallow(ctx: CanvasRenderingContext2D, gridSize = { w: 32, h: 24 }) {
       ctx.fillRect(gridSize.w * 30, 0, gridSize.w, gridSize.h * 24);
       ctx.fillRect(gridSize.w * 22, 0, gridSize.w * 8, gridSize.h);
       ctx.fillRect(gridSize.w * 22, 0, gridSize.w, gridSize.h * 4);
@@ -171,8 +215,10 @@ export default Vue.extend({
     resetGame() {
       this.setTargetWord();
       this.resetAlphabet();
+      this.time = 0;
       this.lives = 6;
       this.state = 1;
+      this.render();
     },
     resetAlphabet() {
       this.alphabet.letters.forEach((letter) => {
@@ -204,7 +250,11 @@ export default Vue.extend({
       });
       if (loseLife && this.lives > 0) this.lives--;
       if (isWordComplete) this.wordComplete();
-      this.render();
+      if (this.lives == 0) {
+        this.stopTimer();
+        this.state = 0;
+      }
+      this.render(isWordComplete);
     },
     wordComplete(): void {
       this.stopTimer();
@@ -274,5 +324,8 @@ a {
   min-width: 20px;
   max-width: 50px;
   height: 50px;
+}
+.target-word {
+  margin-bottom: 10px;
 }
 </style>
