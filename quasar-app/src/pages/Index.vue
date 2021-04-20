@@ -1,7 +1,7 @@
 <template>
   <q-page class="row items-center justify-center">
     <div v-if="user" full-width>
-      <p>USER: {{ this.user.hasOwnProperty('name') ? this.user.name : '' }}</p>
+      <p>USER: {{ this.user.hasOwnProperty('name') ? $emit('user-name', this.user.name) && this.user.name : '' }}</p>
       <GameComponent />
     </div>
     <div v-else>
@@ -46,9 +46,7 @@
           <q-card-section hide class="text-center">
             <p class="text-grey-6">
               Not registered?
-              <q-btn flat class="text-blue-3" v-on:click="$emit('register')"
-                >Create an Account</q-btn
-              >
+              <q-btn flat class="text-blue-3">Create an Account</q-btn>
             </p>
           </q-card-section>
         </q-card>
