@@ -1,9 +1,21 @@
 <template>
   <div class="game full-width">
     <div class="output">
+      <div class="row full-width">
+        <p>LIVES: {{ this.lives }}</p>
+      </div>
       <canvas id="gameCanvas"></canvas>
     </div>
-    <div class="word row justify-evenly full-width">
+    <div v-show="this.state == 0" class="game-menu">
+      <q-btn id="start" v-on:click="startGame"> Start </q-btn>
+      <div class="q-pa-lg">
+        <q-option-group v-model="group" :options="options" color="primary" />
+      </div>
+    </div>
+    <div
+      v-show="this.state == 1 || this.state == 2"
+      class="word row justify-evenly full-width"
+    >
       <div
         class="letter-box"
         v-for="letter in targetWord.letters"
@@ -12,7 +24,7 @@
         <span v-show="letter.active == 1">{{ letter.character }}</span>
       </div>
     </div>
-    <div class="input">
+    <div v-show="this.state == 1" class="input">
       <q-btn
         round
         v-for="letter in alphabet.letters"
@@ -65,25 +77,55 @@ export default Vue.extend({
     msg: String,
   },
   data() {
+    const state = 0;
     const alphabet = new Word('ABCDEFGHIJKLMNOPQRSTUVWXYZ');
     const difficultyLevel = 3;
-    let targetWord: Word = new Word(undefined, true);
-    return { alphabet, difficultyLevel, targetWord };
+    const lives = 6;
+    const targetWord: Word = new Word(undefined, true);
+    return {
+      state,
+      alphabet,
+      difficultyLevel,
+      lives,
+      targetWord,
+      group: 'op1',
+      options: [
+        {
+          label: 'Option 1',
+          value: 'op1',
+        },
+        {
+          label: 'Option 2',
+          value: 'op2',
+        },
+        {
+          label: 'Option 3',
+          value: 'op3',
+        },
+      ],
+    };
   },
   methods: {
+    startGame() {
+      this.state = 1;
+    },
     select(button: Letter): void {
       button.active = button.active == 1 ? 0 : 1;
       let isWordComplete = true;
+      let loseLife = true;
       this.targetWord.letters.forEach((letter: Letter) => {
         if (letter.character == button.character) {
           letter.active = 1;
           console.log(letter.character + ' == ' + button.character);
+          loseLife = false;
         }
         if (letter.active == 0) isWordComplete = false;
       });
+      if (loseLife && this.lives > 0) this.lives--;
       if (isWordComplete) this.wordComplete();
     },
-    wordComplete() {
+    wordComplete(): void {
+      this.state = 0;
       alert('success');
     },
     setTargetWord(): void {
@@ -112,9 +154,9 @@ export default Vue.extend({
       }
       return this.difficultyLevel;
     },
-    mounted(): void {
-      console.log(this.alphabet);
-    },
+  },
+  mounted(): void {
+    this.setTargetWord();
   },
 });
 </script>
