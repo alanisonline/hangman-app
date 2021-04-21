@@ -23,6 +23,8 @@
                 v-model="login.email"
                 type="email"
                 label="email"
+                :rules="[val => !!val || 'Field is required']"
+                lazy-rules
               />
               <q-input
                 square
@@ -32,6 +34,8 @@
                 v-model="login.password"
                 type="password"
                 label="password"
+                :rules="[val => !!val || 'Field is required']"
+                lazy-rules
               />
               <q-btn
                 unelevated
