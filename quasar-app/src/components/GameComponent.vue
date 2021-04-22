@@ -21,7 +21,7 @@
       </q-btn>
     </div>
     <div
-      v-show="this.state == 1 || this.state == 2"
+      v-show="this.state == 1"
       class="target-word row justify-evenly full-width"
     >
       <div

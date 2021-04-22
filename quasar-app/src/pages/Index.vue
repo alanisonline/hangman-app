@@ -1,7 +1,14 @@
 <template>
   <q-page class="row items-center justify-center">
     <div v-if="user" full-width>
-      <p>USER: {{ this.user.hasOwnProperty('name') ? $emit('user-name', this.user.name) && this.user.name : '' }}</p>
+      <p>
+        USER:
+        {{
+          this.user.hasOwnProperty('name')
+            ? $emit('user-name', this.user.name) && this.user.name
+            : ''
+        }}
+      </p>
       <GameComponent />
     </div>
     <div v-else>
@@ -23,7 +30,7 @@
                 v-model="login.email"
                 type="email"
                 label="email"
-                :rules="[val => !!val || 'Field is required']"
+                :rules="[(val) => !!val || 'Field is required']"
                 lazy-rules
               />
               <q-input
@@ -34,7 +41,7 @@
                 v-model="login.password"
                 type="password"
                 label="password"
-                :rules="[val => !!val || 'Field is required']"
+                :rules="[(val) => !!val || 'Field is required']"
                 lazy-rules
               />
               <q-btn
@@ -46,6 +53,17 @@
                 type="submit"
               />
             </q-form>
+            <q-banner
+              v-show="loginError.enabled"
+              dense
+              inline-actions
+              class="text-white bg-red"
+            >
+              {{ loginError.message }}
+              <template v-slot:action>
+                <q-btn flat color="white" label="Login failed" />
+              </template>
+            </q-banner>
           </q-card-section>
           <q-card-section hide class="text-center">
             <p class="text-grey-6">
@@ -61,47 +79,66 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import axios from 'axios';
+import axios, { AxiosError, AxiosResponse } from 'axios';
 import GameComponent from '../components/GameComponent.vue';
 
 export default Vue.extend({
   name: 'PageIndex',
   components: { GameComponent },
-  data() {
+  data(): {
+    user: unknown;
+    login: { email: string; password: string };
+    loginError: { enabled: boolean; message: string };
+  } {
     return {
-      user: <unknown | null>null,
+      user: undefined,
       login: { email: '', password: '' },
+      loginError: { enabled: false, message: '' },
     };
   },
   mounted() {
     void axios
       .get('/sanctum/csrf-cookie')
       .catch((err) =>
-        console.log('There has been an error obtaining a cookie', err)
+        console.log('There has been an error obtaining a session cookie', err)
       )
-      .then(() => {
-        // Login...
-        this.getUser();
+      .then((): void => {
+        this.getUser(false);
       });
   },
   methods: {
-    getUser() {
+    getUser(displayError = true): string {
+      let errorOutput = '';
       void axios
         .get('api/user')
-        .then((response) => {
-          this.user = <unknown | null>response.data;
+        .then((response): void => {
+          this.user = <AxiosResponse>response.data;
         })
-        .catch((err) =>
-          console.log('There has been an error with getting User', err)
-        );
+        .catch((err: AxiosError): void => {
+          if (displayError) {
+            this.loginError.enabled = displayError;
+            this.loginError.message =
+              err.response !== undefined
+                ? err.response.statusText
+                : 'Error undefined.';
+          }
+        });
+      return errorOutput;
     },
     handleLogin() {
       void axios
         .post('/login', this.login)
-        .catch((err) => console.log('There has been an error with Login', err))
-        .then(() => {
+        .then((): void => {
           this.getUser();
-        });
+          console.log('loginError: ' + this.loginError.message);
+        })
+        .catch(
+          (err: AxiosError): string =>
+            (this.loginError.message =
+              err.response !== undefined
+                ? err.response.statusText
+                : 'Error undefined.')
+        );
     },
   },
 });
